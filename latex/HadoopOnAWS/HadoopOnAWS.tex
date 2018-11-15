@@ -1,0 +1,168 @@
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Lachaise Assignment
+% LaTeX Template
+% Version 1.0 (26/6/2018)
+%
+% This template originates from:
+% http://www.LaTeXTemplates.com
+%
+% Authors:
+% Marion Lachaise & François Févotte
+% Vel (vel@LaTeXTemplates.com)
+%
+% License:
+% CC BY-NC-SA 3.0 (http://creativecommons.org/licenses/by-nc-sa/3.0/)
+% 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+
+%----------------------------------------------------------------------------------------
+%	PACKAGES AND OTHER DOCUMENT CONFIGURATIONS
+%----------------------------------------------------------------------------------------
+
+\documentclass{article}
+
+\usepackage{dirtree}
+
+\usepackage{hyperref}
+
+\input{structure.tex} % Include the file specifying the document structure and custom commands
+
+
+%----------------------------------------------------------------------------------------
+%	ASSIGNMENT INFORMATION
+%----------------------------------------------------------------------------------------
+
+\title{Hadoop on Amazon Web Service's\\ Elastic MapReduce} % Title of the assignment
+
+%\author{David Domingo\\ \texttt{djd240@cs.rutgers.edu}} % Author name and email address
+
+\date{Last Updated: \today} % University, school and/or department name(s) and a date
+
+
+%----------------------------------------------------------------------------------------
+
+\begin{document}
+
+\maketitle % Print the title
+
+
+\begin{figure}[h!]
+ \centering
+ \includegraphics[width=50mm]{images/hadoop}\hspace{15mm}
+ \includegraphics[width=60mm]{images/AWS}
+\end{figure} 
+
+%----------------------------------------------------------------------------------------
+%	INTRODUCTION
+%----------------------------------------------------------------------------------------
+
+\section*{Introduction} % Unnumbered section
+
+In this guide, we'll be going over how to use Amazon Web Service's Elastic MapReduce to run MapReduce jobs. Elastic MapReduce (a.k.a EMR) is Amazon's solution to data analytics based on Hadoop. Users can create clusters running Hadoop and run distributed MapReduce/Spark programs. This guide covers how to set up your own Hadoop cluster using AWS EMR. How to transfer data
+
+%----------------------------------------------------------------------------------------
+%	TABLE OF CONTENTS
+%----------------------------------------------------------------------------------------
+
+\hypersetup{hidelinks}
+\tableofcontents
+
+%----------------------------------------------------------------------------------------
+%	Setting up AWS
+%----------------------------------------------------------------------------------------
+
+\section{Setting up AWS}
+\subsection{Signing up for AWS}
+\subsection{Getting Educational Credit}
+Now that we have an AWS account, we need credit so we can use AWS services without being charged on out credit cards. Do do this, 
+\begin{enumerate}
+    \item Go to https://aws.amazon.com/education/awseducate/
+    \item Click "Join AWS Educate" to start registering
+    \item Fill out the form accordingly. Ensure you use your school .edu email and leave the promo code field empty
+    \item You will notice there are two options. 
+    
+\end{enumerate}
+
+\subsection{Creating a Security Key-Pair}
+When you create a cluster, it will open to the internet and you will able to access it from anywhere. You should create a security key pair so when you do create any clusters, you can configure it to only accept incoming connections from those who have the key. To create a key-pair, do the following:
+
+\begin{enumerate}
+    \item Go to https://us-west-2.console.aws.amazon.com/ec2/home
+    \item On the left hand panel, under "NETWORK \& SECURITY", click "Key Pairs"
+    \item Start creating a key pair by clicking "Create Key Pair"
+    \item Name it the new key pair and click "Create".
+    \item The key pair will be created and your browser should prompt you to download the key (.pem file). Save this in a safe space, we will need this for when you SSH or SCP to the cluster. 
+\end{enumerate}
+
+
+%----------------------------------------------------------------------------------------
+%	CLUSTER
+%----------------------------------------------------------------------------------------
+
+\section{Cluster}
+\subsection{Starting your cluster}
+\subsection{Terminating a Cluster}
+\subsection{Restarting a Cluster}
+Since AWS allocates resources for your cluster on demand, there no such thing as "restarting" a cluster. Once its gone, its gone. What you can do is clone a previous cluster. What this basically does is created a new cluster with the same configuration as the cluster you pick.
+\subsection{Tips for Cluster Usage}
+\subsubsection{Avoiding Unnecessary Charges}
+To avoid unecessary charges, make sure you terminate your cluster whenever you are not going to use your cluster. It would be fine to leave the cluster running if you wont be using the cluster for 30 minutes or so
+\subsubsection{Checking Cluster Usage}
+\subsubsection{Sharing the Cluster}
+It may be more efficient for you to share a single cluster if you are perhaps working a group. In order to do this you can just share the secret key with anyone else that you want to share the cluster with. You could also start the cluster with no security. But this is not recommended.
+
+
+%----------------------------------------------------------------------------------------
+%	RUNNING MAPREDUCE
+%----------------------------------------------------------------------------------------
+
+\section{Running MapReduce}
+In order to run MapReduce you will have do three things. JAR
+\subsection{Data Storage}
+\subsubsection{On Hadoop Cluster}
+\subsubsection{In AWS S3 Buckets}
+\subsection{Executing the Job}
+\subsubsection{Manually}
+\subsubsection{Adding A Step}
+
+
+%----------------------------------------------------------------------------------------
+%	USEFUL LINKS AND RESOURCES
+%----------------------------------------------------------------------------------------
+\section{Useful links and Resources}
+\textbf{Signing up for AWS}
+\begin{itemize}
+\item 
+\end{itemize}
+\textbf{Hadoop Cluster Interaction}
+\begin{itemize}
+\item 
+\end{itemize}
+\textbf{Signing up for AWS}
+\begin{itemize}
+\item 
+\end{itemize}
+
+%\begin{info}[Testing your web service:]
+%There are multiple tools you can use to make HTTP requests. Use these tools to test your web service:
+%\begin{itemize}
+%\item curl (Mac/Linux)
+%\item wget (Linux)
+%\item Postman (Windows/Mac/Linux)
+%\end{itemize}
+%I recommend Postman to make sample HTTP requests to your web service as it is readily available and has a UI to easily modify certain parts of the HTTP request. 
+%\end{info}
+
+%% File contents
+%\begin{file}[hello.py]
+%\begin{lstlisting}[language=Python]
+%#! /usr/bin/python
+%
+%import sys
+%sys.stdout.write("Hello World!\n")
+%\end{lstlisting}
+%\end{file}
+
+\end{document}
