@@ -27,6 +27,8 @@
 
 \usepackage{hyperref}
 
+\usepackage{listings}
+
 \input{structure.tex} % Include the file specifying the document structure and custom commands
 
 
@@ -34,14 +36,12 @@
 %	ASSIGNMENT INFORMATION
 %----------------------------------------------------------------------------------------
 
-\title{The Foodie Web Service Project\\ } % Title of the assignment
+\title{MapReduce on the Rutgers Hadoop Cluster} % Title of the assignment
 
 %\author{David Domingo\\ \texttt{djd240@cs.rutgers.edu}} % Author name and email address
 
-%\author{Rutgers University} % Author name and email address
-
-\date{} % University, school and/or department name(s) and a date
-
+%\date{Last Updated: \today} % University, school and/or department name(s) and a date
+\date{\vspace{-7ex}}
 
 %----------------------------------------------------------------------------------------
 
@@ -49,398 +49,176 @@
 
 \maketitle % Print the title
 
+
+\begin{figure}[h!]
+ \centering
+ \includegraphics[width=55mm]{images/Rutgers}\hspace{15mm}
+ \includegraphics[width=50mm]{images/hadoop}
+\end{figure} 
+
 %----------------------------------------------------------------------------------------
 %	INTRODUCTION
 %----------------------------------------------------------------------------------------
 
 \section*{Introduction} % Unnumbered section
 
-In this project we will be exploring RESTful web services. Every day we interact with web services in everything we do, on our phone, on our computers, Google Maps, Twitter, Facebook, you name it. Behind every service you use, are many systems interacting with each other to provide you with a service that is seamless. This is a distributed system! In this project we'll be creating our own distributed system for food lovers. We'll be creating a simple Web Service that will take an address and respond with info of nearby restaurants. In order for our service to provide such functionality, we'll have to coordinate and interact with other web services to get data that we'll need to give our client what they want.
-
-%----------------------------------------------------------------------------------------
-%	Background
-%----------------------------------------------------------------------------------------
-
-\section*{Background}
-
-\subsection*{Intro to RESTful Design}
-RESTful design is a popular architectural style in today's world of distributed systems. REST stand for "Representational State Transfer".  RESTful design helps make communication between systems be stateless. A RESTful service is simply a server that provides access to resources. Each resource is identified by URIs/Global IDs. Clients can then interact with the resources by sending HTTP requests to a service's RESTful API which is a collection of service endpoints that allows some form of interaction with a resource. In the end, RESTful design allow for systems to easily communicate and interact with resources through HTTP requests.
-
-\-\\\ Learn more about RESTful Design and REST APIs here:
-\begin{itemize}
-\item REST API concepts and examples - https://youtu.be/7YcW25PHnAA 
-\item What is a RESTful API? Explanation of REST and HTTP - https://youtu.be/Q-BpqyOT3a8
-\item \href{https://www.cs.rutgers.edu/~pxk/417/notes/content/03r-recitation.pdf}{https://www.cs.rutgers.edu/~pxk/417/notes/content/03r-recitation.pdf}
-\end{itemize}
-
-\begin{info}[Recommended video:]
-I highly recommend watching the first video "REST API concepts and examples". It has a great explanation of how RESTful services and RESTful APIs work as well as give a brief overview of HTTP/JSON. This should give you a general overview of the concepts you will need to know for this project.
-\end{info}
-
-\subsection*{Intro to HTTP Requests}
-In order to carry out RESTful calls you will need to understand Hypertext Transfer Protocol (HTTP), which at the heart of RESTful architecture. Typically services use HTTP to communicate with each  other and carry out "RESTful" calls. HTTP Requests have a particular format. There are multiple types HTTP methods, including GET, POST, PUT, PATCH, DELETE. There are other methods, but these are the basic ones that are used. These methods give the server an idea of what kind of operations the client wants to perform on a resource. For example, every time you go to a website on your web browser, your web browser sends a GET request to the server, letting it know that it wants to get a resource, with the resource being a webpage in this case. HTTP requests can pass information to a service through request parameters and/or request headers. For example, typically HTTP requests have header called "Content-Type" that passes information about the format of the request body.  Now as a result of a HTTP request you will get a response. An HTTP response has a similar format to a HTTP request and can pass information back to the client by setting response parameters, headers, or the body. The only difference is that an HTTP response also has a number known as a status code. A status code gives the client about some insight on how the request was handled. For example, in most cases, when a request is successfully processed, the response usually has the status code of 200 which represents success. 
-
-\-\\\ Read more about HTTP here:
-\begin{itemize}
-\item HTTP Quick Guide - https://www.tutorialspoint.com/http/http\_quick\_guide.htm
-\item What is a RESTful API? Explanation of REST and HTTP - https://youtu.be/Q-BpqyOT3a8
-\item HTTP Status Codes - https://www.restapitutorial.com/httpstatuscodes.html
-\end{itemize}
-
-\subsection*{Intro to JSON}
-The most popular way to serialize and pass data within HTTP requests is with JSON objects. When working with REST APIs, you will most likely see information being returned in JSON format. JSON stands for JavaScript Object Notation. JSON is a human-readable format and consists of key/value pairs. In this project you will be receiving responses in JSON from API requests as well as sending JSON back to the client, so it is important to understand the JSON formate and how to handle JSON with the particular programming language/framework that you choose to use. 
-
-\-\\\ Read more about JSON here:
-\begin{itemize}
-\item Introducing JSON - https://www.json.org/
-\item JSON Simple Wiki - https://simple.wikipedia.org/wiki/JSON
-\end{itemize}
+At Rutgers, we have a Hadoop cluster that students to run Spark and MapReduce programs. In this guide, we'll be going over how to use Rutgers' Hadoop Cluster to run MapReduce Programs. In order to run MapReduce you will have do three things. Place your jar somewhere the cluster can access it. Place the input data somewhere the cluster could access. Run MapReduce. 
 
 
 %----------------------------------------------------------------------------------------
-%	Architecture and Flow
+%	TABLE OF CONTENTS
 %----------------------------------------------------------------------------------------
-\section*{The Foodie WebService}
-Your task is to build the back-end of our Foodie Web Service. We want the web service to take a HTTP request with an address parameter and respond with a list popular restaurants nearby. How will we do this? Fortunately we have two APIs that we can use to do just that. Geocod.io is a Geocoding web service that can take an address and turn it into a geographic description (e.g. latitude and longitude). Zomato is a web service that provides restaurant content and has a REST endpoint that can find a nearby restaurants given latitude and longitude as input. We'll use both of these services we can create our Foodie Web Service.
 
-
-
-\section*{Architecture and Flow}
-In figure 1 you can see the main architecture of our web service. Our web service will consist of three systems: (1) our foodie web service that will handle requests, (2) the Geocod.io web service that will geocode an address, and (3) the Zomato web service that will find nearby restaurants.
-
-
-\-\ \\
-The flow of handling a client request to our /restaurants endpoint can seen in figure 2. As you'll see, our client will send a request with an address to our web service. Our web service will then take that address, geocode that address by making a API call to Geocod.io, then find nearby restaurants by making a second API call to Zomato with our geocoded address. In this case, a client could be a web page, an app on a phone, or even another web service, but in this project we will only be focussing on the web service. You will not need to implement your own client. We will be using HTTP request tools to act as a client.  \\\\
-
-
-
-
+\hypersetup{hidelinks}
+\tableofcontents
 
 
 %----------------------------------------------------------------------------------------
-%	Project Stages
+%	Connecting to the Cluster
 %----------------------------------------------------------------------------------------
 
-\section*{Project Stages} % Numbered section
+\section{Connecting to the Cluster}
+There are three nodes at which we can connect to the Rutgers Hadoop Cluster: \textit{data1.cs.rutgers.edu}, \textit{data2.cs.rutgers.edu}, and \textit{data3.cs.rutgers.edu}. 
 
-To implement our Foodie Web Service, we will break down this project into six stages:
-\begin{itemize}  
-\item Stage 1 - Starting a RESTful Web Service
-\item Stage 2 - Passing Some Input
-\item Stage 3 - Geocoding our Address
-\item Stage 4 - Finding Nearby Restaurants
-\item Stage 5 - Formatting Client Responses
-\item Stage 6 - Fault Tolerance
-\end{itemize}
+\subsection{Via Secure Shell (SSH)}
+You can connect to them via Secure Shell (SSH)
+\begin{lstlisting}[language=bash]
+  $ ssh <netid>@<remote>
+\end{lstlisting}
+example:
+\begin{lstlisting}[language=bash]
+  $ ssh abc123@data1.cs.rutgers.edu
+\end{lstlisting}
 
+\subsection{Via XWindow (Graphical)}
+We can also connect to the cluster using Xwindow. This will start an Xwindows session. This way you can use a GUI to navigate the machine.
 
-%----------------------------------------------------------------------------------------
-%	Stage 1
-%----------------------------------------------------------------------------------------
-
-\section{Starting a RESTful Web service}
-The first part of this project to start off by creating the base of your RESTful webs service. Here you can use the following languages and the corresponding frameworks:
-\begin{itemize}
-\item Java (Spring)
-\item Javascript (Node.js/Express)
-\item Python (Flask/Django)
-\end{itemize}
-There are many tutorials out there to help you get started making a RESTful web service. Some links will be provided in the Resources section of this document. 
-
-\-\\\ Using these frameworks we want to make a web service with a single REST endpoint:
-\begin{itemize}
-\item /restaurants - Returns list of nearby restaurants given an address
-\end{itemize}
-
-\-\\\ Try and get a simple RESTful web service running and make some HTTP requests to your own web service to test it out. 
-
-\-\ \\
-\textbf{Stage Summary}\\
-At the end of this stage you should have a Web Service with a single REST endpoint /restaurants that returns a response back to the client with a status 200.
-
-\begin{info}[Note:]
-The listed languages are just recommended languages and frameworks. I recommend you to use whatever programming language you are most comfortable with. You are free to use other languages such as Ruby or PHP and frameworks as long as you describe your project structure and ensure require libraries will not inflate your submission file size.
-\end{info}
-
-\begin{info}[Testing your web service:]
-There are multiple tools you can use to make HTTP requests. Use these tools to test your web service:
-\begin{itemize}
-\item curl (Mac/Linux)
-\item wget (Linux)
-\item Postman (Windows/Mac/Linux)
-\end{itemize}
-I recommend Postman to make sample HTTP requests to your web service as it is readily available and has a UI to easily modify certain parts of the HTTP request. 
+\begin{info}[You need to know linux command:]
+To interact with the cluster you will have to familiarize yourself with linux commands and network protocols such as ssh, scp, sftp. If you are unfamiliar with typical linux, check out https://www.cs.rutgers.edu/resources/beginners-info and look at the resources under the "Introduction to CS Resources" and "Intro to Linux" sections to read up on how to interact with the linux iLab machines.
 \end{info}
 
 
 %----------------------------------------------------------------------------------------
-%	Stage 2 Passing some
-%---------------------------------------------------------------------------------------
+%	Transferring Files to the Cluster
+%----------------------------------------------------------------------------------------
 
-\section{Passing some input}
-Now that we have the data we want, we want to be able give our web service some input to do stuff with. In our case, we want to pass in an address as an input to our web service. We can pass input to our web service multiple ways. We can put the address in the request parameters, request header, or request body. The easiest way way to pass a value within a request would be as a parameter. Parameters within a request are represented by key/value pairs.
+\section{Transferring Files to the Cluster}
+In order to run MapReduce on the cluster, we need to have our runnable jars and input files on the ilab machines. You can transfer data to the iLab machines using either SFTP or SCP. 
+\subsection{Via Secure Copy Protocol (SCP)}
+The 
+\begin{lstlisting}[language=bash]
+  $ scp <source> <destination>
+\end{lstlisting}
+Example:
+\begin{lstlisting}[language=bash]
+  $ scp file.txt djd240@data1.cs.rutgers.edu:~
+\end{lstlisting}
+We can also transfer files from the iLab machines back to our local comuputer, switching the source and destination like such,
+\begin{lstlisting}[language=bash]
+  $ scp djd240@data1.cs.rutgers.edu:~/file.txt file.txt
+\end{lstlisting}
 
-\-\\\ 
-\textbf{Stage Summary}\\
-In this stage you will have want to modify your requests to your web service to pass a parameter called "address" with some address string. We'll be using this address and geocode it using the Geocod.io API, so modify your /restaurants endpoint to store the address parameter passed within the request in some variable. 
+\subsection{Via Secure File Transfer Protocol (SFTP)}
+STFP is an modified version of SSH that allows for file transfers. We first use sftp to connect to the remote computer then use sftp commands to transfer files.
+\begin{lstlisting}[language=bash]
+  $ sftp <destination>
+  sftp> get file
+\end{lstlisting}
+We can also transfer files back to our local computers using get
 
-\begin{info}[Hint:]
-You can test that the parameter is being passed in correctly by printing out the address parameter within the request within your web service. 
+%----------------------------------------------------------------------------------------
+%	Preparing Input
+%----------------------------------------------------------------------------------------
+
+\section{Preparing Input}
+
+\subsection{Intro to HDFS}
+Now for Hadoop to find your input, the input must be on HDFS. At this point, assuming you followed the previous section, your data is on the cluster but not on HDFS. To get it on HDFS, while SSH'd in the cluster, run HDFS to move files to and from HDFS.
+We can interact with HDFS by using the following commands:
+
+\subsection{HDFS Basics}
+\-\\\\\noindent To list directories and files on HDFS, we can use the -ls command
+\begin{lstlisting}[language=bash]
+  $ hdfs dfs -ls 
+\end{lstlisting}
+To put files onto hdfs we can use the -put command
+\begin{lstlisting}[language=bash]
+  $ hdfs dfs -put <file>
+  $ hdfs dfs -put myfile.txt //example
+\end{lstlisting}
+To get files from HDFS and copy it into 
+\begin{lstlisting}[language=bash]
+  $ hdfs dfs -put <file>
+  $ hdfs dfs -put myfile.txt //example
+\end{lstlisting}
+
+
+%----------------------------------------------------------------------------------------
+%	Executing the Job
+%----------------------------------------------------------------------------------------
+\section{Executing MapReduce}
+\subsection{Intro to Hadoop}
+When we want to interact with Hadoop, we run Hadoop commands.
+\subsection{Running an executable JAR}
+While SSH'd into the cluster, invoke hadoop to run MapReduce by running the following
+\begin{lstlisting}[language=bash]
+  $ hadoop jar <jar location> <class> <input> <output>
+\end{lstlisting}
+In this case \emph{input} is the location of the file or directory that hold the input. \emph{output} is the name of the folder you want Hadoop to store the results in at the end.
+
+\-\\\noindent Example:
+\begin{lstlisting}[language=bash]
+  $ hadoop jar WordCount-0.0.1-SNAPSHOT.jar WordCount input.txt output
+\end{lstlisting}
+\begin{info}[output folder must be unique:]
+When specifying the output folder, make the output folder should be unique. If a folder with the same name that already exists, the program will terminate and throw an error. 
 \end{info}
 
+\section{Examining MapReduce Output}
+After the MapReduce job executes, Hadoop should have created a folder on HDFS with name you specified when executing. 
+
+\subsection{Inspecting files using cat}
+The cat unix command prints out the file contents. HDFS also supports cat.
+\begin{lstlisting}[language=bash]
+  $ hdfs dfs -cat <file>
+\end{lstlisting}
+
+\-\\\noindent Example:
+\begin{lstlisting}[language=bash]
+  $ hdfs dfs -cat output/r-00000.
+\end{lstlisting}
+
+\subsection{Copying back from HDFS to iLab machine}
+You can copy back the output back to your ilab machine using the copyToLocal command. 
+
+\subsection{Copying to compute from iLab machine}
+If you using SSH to work remotely on the iLab machines but would like to copy files back to your local machine, you can use scp and sftp to copy files back to your local machine.
+\textbf{Via Secure Copy Protocol}
+\textbf{VIa Secure File Transfer Protocol}
+
+
 %----------------------------------------------------------------------------------------
-%	Stage 3
+%	USEFUL LINKS AND RESOURCES
 %----------------------------------------------------------------------------------------
-
-\section{Geocoding our address}
-
-\textbf{The Geocod.io API}\\
-The Geocod.io is a web service that provides geocoding related services. It has a REST endpoint /geocode that takes in a an address as a query parameter, and an API key as a parameter as well. Geocod.io then processes the address and returns information about the address, including the lat/long, in JSON format within the body of the response. 
-
-\-\ \\
-\textbf{Using the Geocod.io API}\\
-The /geocode endpoint is located at
+\section*{Useful links and Resources}
+\textbf{Rutgers Hadoop Cluster}
 \begin{itemize}
-\item https://api.geocod.io/v1.3/geocode
+    \item \textit{Hadoop Cluster Information}\\ https://services.cs.rutgers.edu/hadoop.html
 \end{itemize}
-A request to the /geocode endpoint requires two parameters:
+\textbf{Hadoop Cluster Interaction}
 \begin{itemize}
-\item q - Address
-\item api\_key - Your Geocod.io API Key
+    \item \textit{HDFS Overview and Commands}\\ https://hadoop.apache.org/docs/r2.4.1/hadoop-project-dist/hadoop-common/FileSystemShell.html
 \end{itemize}
-The /geocode endpoint returns:
+\textbf{MapReduce Guides}
 \begin{itemize}
-\item A JSON response of geocoding info
-\end{itemize}
+    \item \textit{Apache MapReduce Tutorial}\\ https://hadoop.apache.org/docs/stable/hadoop-mapreduce-client/hadoop-mapreduce-client-core/\\MapReduceTutorial.html
+\end{itemize} 
 
-\-\ \\
-\textbf{Stage Summary}\\
-The goal of this stage is to modify your web service to make a request to the Geocod.io API with the address you stored and store the latitude and longitude passed back in the response's JSON body. This way we can use the latitude and longitude to make our next API call to find nearby restaurants. 
+\-\\\\\\\\\\\\\noindent \date{Last Updated: \today}
 
-\-\ \\
-\textbf{Geocod.io Links:}
-\begin{itemize}
-\item  Learn more about the Geocod.io and get your API key - https://www.geocod.io/
-\item Learn more about the /geocode REST endpoint - https://www.geocod.io/docs/?shell\#geocoding
-\end{itemize}
-
-\begin{info}[Make sure to get your API key:]
-To use the Geocod.io API you'll need to have an API key. You'll have to sign up for a free Geocod.io account, and generate an API key to use in your API requests. You can make up to 2,500 requests a day which should be sufficient enough for testing and implementing your project. 
-\end{info}
-
-\begin{info}[JSON Manipulation:]
-The info that you'll need to store is within the body of the request stored in a JSON format. Look up how to extract and handle JSON from the requests.
-\end{info}
-
-
-
-%----------------------------------------------------------------------------------------
-%	Stage 4
-%----------------------------------------------------------------------------------------
-
-\section{Finding Nearby Restaurants}
-\textbf{The Zomato API}\\
-Now that we have the latitude and longitude of our address, let's use the Zomato API to find some nearby restaurants. The Zomato has an REST endpoint /geocode, that takes a latitude and longitude parameters, an API key header, and returns a list of popular cuisines and nearby restaurants.
-
-\-\ \\
-\textbf{Using the Zomato API} \\
-The /geocode endpoint is located at
-\begin{itemize}
-\item https://developers.zomato.com/api/v2.1/geocode
-\end{itemize}
-A request to the /geocode endpoint requires three things:
-\begin{itemize}
-\item lat - Latitude (as a request parameter)
-\item lon - Longitude (as a request parameter)
-\item user-key - Your Zomato API key (as a request header)
-\end{itemize}
-The /geocode endpoint returns:
-\begin{itemize}
-\item A JSON response consisting of information on the location and a list of nearby restaurants.
-\end{itemize}
-
-\-\ \\
-\textbf{Stage Summary}\\
-The goal of this stage is the take the geocoded latitude and longitude you got from the Geocod.io API and make a request to the Zomato API and retrieve a list of nearby restaurants.
-
-\-\ \\
-\textbf{Make Note of Response Format}\\
-After you have successfully made your Zomato API call, look through the Zomato /geocode response. Take note of how nearby restaurants are formatted within the response. They should be listed under the key "nearby\_restaurants" which should be an JSON array of JSON objects, with each object representing a single restaurant nearby. You will need to pull certain values from each restaurant object and format it for the client in the next stage. 
-
-\-\ \\
-\textbf{Zomato Links:}
-\begin{itemize}
-\item  Learn more about Zomato and get your API key - https://developers.zomato.com/api
-\item Learn more about the /geocode REST endpoint - https://developers.zomato.com/documentation
-\end{itemize}
-
-\begin{info}[Make sure to get your API key:]
-To use the Zomato API you'll need to have an API key. You'll have to sign up for a free Zomato account, and generate an API key to use in your API requests. You can make up to 1,000 requests a day which should be sufficient enough for testing and implementing your project. 
-\end{info}
-
-\begin{info}[API Key Usage:]
-Using the API key for the Zomato API is different from how the API was used for the Geocod.io API. For Geocod.io, the API key was passed as a HTTP request parameter, but for the Zomato API, the api key is passed in as a HTTP request header. 
-\end{info}
-
-
-
-
-%----------------------------------------------------------------------------------------
-%	Stage 5
-%----------------------------------------------------------------------------------------
-
-\section{Formatting Client Responses}
-By now we should have a list of nearby restaurants, now we should take this and pass it back our client as list of restaurants with the following fields for each restaurant:
-\begin{itemize}
-\item name
-\item address
-\item cuisines
-\item rating
-\end{itemize}
-
-\-\ \\
-\textbf{Stage Summary}\\
-The goal of this stage would be to modify the response to return the list of restaurants within the Body. You the response should be JSON format and be an array of JSON objects, with each object representing a single restaurant. 
-
-\-\ \\
-The JSON body of your response back to the client should take the following format:
-
-\begin{verbatim}
-{ 
-   "restaurants": [
-        { 
-                "name" : "Restaurant 1",  
-                "address" : "1 Main St New Brunswick, 12345", 
-                "cuisines" : "Italian", 
-                "rating" : "3.5" 
-        },
-        { 
-                "name" : "Restaurant 2", 
-                "address" : "2 Main St New Brunswick  12345", 
-                "cuisines" : "Indian, Thai", 
-                "rating" : "3.7" 
-        }
-   ]
-}
-\end{verbatim}
-
-
-%----------------------------------------------------------------------------------------
-%	Stage 6
-%----------------------------------------------------------------------------------------
-
-\section{Fault Tolerance}
-
-By now we should have a working RESTful web service ready to use, but there are several edge cases we should cover to make sure our web service is broken if something goes wrong.
-
-\-\ \\
-\textbf{Checking for client incompetence} \\
-Another thing we should check for is if the client uses our web service incorrectly and doesn't pass an address. To catch this, check if the the value of the address is null when trying to access the address parameter within the request. If this happens, we obviously can't do anything, so immediately return an error response back to the client. 
-
-\-\ \\
-\textbf{Checking if APIs are down}\\
-What if some of the APIs we use are down? We should make sure that our Web Service doesn't break when the APIa we use are down. We can use the response codes we get from those requests to determine whether or not the service is down. Through experimenting and using the APIs you should notice that when an API call is successful, we get back a 200 status. So the idea is to make sure you check the statuses of the responses of the API calls. If the status codes is something other than 200, we should stop trying to further process the request and just return an appropriate error response back to our client. 
-
-\-\ \\
-\textbf{Responding Back Approriately}\\
-So we know to successfully catch these two errors, but when we respond with an error back to the client we should also send back an appropriate status code as well. Now remember HTTP response status codes are helpful to give the requester insight of what happened with their request. 4xx and 5xx level response codes are the two levels of response statuses used when something goes wrong. When the client sends a bad or malformed request, we typically use the 400 status which represents a Bad Request. When some operation within the service fails, we typically use the 500 status which represents an Internal Server Error. Let's use these two status codes for our edge cases.
-
-\-\ \\
-\textbf{Stage Summary}\\
-In summary in this stage we want to
-\begin{itemize}
-\item Send back a response with a 400 (Bad Request) status and an appropriate error message if there is no address parameter within the client request
-\item Send back a response with a  500 (Internal Server Error) status and an appropriate error message if either of our API requests are unsuccessful
-\end{itemize}
-
-\begin{info}[Testing Fault Tolerance:]
-Test out you web service's fault tolterance by incorrectly formatting the request to one of the API calls to Geocod.io or Zomato so that the request fails. If you program is right, the client should receive and error. 
-\end{info}
-
-\begin{info}[Only the status codes matter:]
-You can format the error response back to the client any way you'd like as long as the status codes are correct. 
-\end{info}
-
-
-
-
-
-%----------------------------------------------------------------------------------------
-%	Submission 
-%----------------------------------------------------------------------------------------
-
-\section*{Submission } 
-To submit your project, have ONE of the group members submit two things:
-
-\begin{enumerate}
-\item \textbf{A zip file of your project.} Remember to not include the downloaded libraries within the submission as it would be too large. Please list the libraries you used in the written submission so I can figure out which ones i'll need to instal in order to run your web service.
-\item \textbf{A pdf document consisting of the following things:}
-	\begin{itemize}
-	\item List of group members
-	\item A short paragraph or two describing what you accomplished including details on how to use the client if you deviated from the original design
-	\item A short paragraph or two describing any issues you may have encountered and how you think you could have solved them. If you didn't have any simply state that you didn't have any issues.
-	\item A short description on the libraries/packages you used
-	\item A short description on how to start your web service
-	\item A short description of where you placed your Geocod.io / Zomato API key within your code. (This way I can replace it with my own if I need to)
-	\end{itemize}
-\end{enumerate}
-
-
-
-%----------------------------------------------------------------------------------------
-%	Useful Links and Resources
-%----------------------------------------------------------------------------------------
-
-\section*{Useful Links and Resources} % Numbered section
-
-\textbf{\underline{Java Links and Resources}}
-	\begin{itemize} 
-	\item \textbf{Spring Guides} - https://spring.io/guides
-	\item \textbf{Building a RESTful Web Service with Spring} - https://spring.io/guides/gs/rest-service/
-	\item \textbf{Build a Hello World REST service in less than 6 minutes} - \\ https://www.youtube.com/watch?v=47xNBNd-LLI
-	\item \textbf{Do a simple HTTP Request in Java} - \\ https://www.baeldung.com/java-http-request
-\end{itemize}
-
-\-\ \\
-\textbf{\underline{Node.js Links and Resources}}
-\begin{itemize} 
-	\item \textbf{Building a simple REST API with NodeJS and Express} - \\ https://medium.com/@onejohi/building-a-simple-rest-api-with-nodejs-and-express-da6273ed7ca9
-	\item \textbf{5 Ways to Make HTTP Reqeusts in Node.js} - \\ https://www.twilio.com/blog/2017/08/http-requests-in-node-js.html
-	\item \textbf{Express.js Tutorial:  Building RESTful APIs with Node and Express} - \\https://www.youtube.com/watch?v=pKd0Rpw7O48
-\end{itemize}
-
-\-\ \\
-\textbf{\underline{Python Links and Resources}}
-\begin{itemize} 
-	\item \textbf{Developing RESTful APIs with Python and Flask} - \\ https://auth0.com/blog/developing-restful-apis-with-python-and-flask/\#bootstrapping-flask
-	\item \textbf{Making HTTP Requests in Python} - https://tutorialedge.net/python/python-http-requests-tutorial/
-	\item \textbf{Building a REST API using Python and Flask} - https://www.youtube.com/watch?v=s\_ht4AKnWZg
-\end{itemize}	
-
-
-
-%----------------------------------------------------------------------------------------
-%	Additional Hints 
-%----------------------------------------------------------------------------------------
-
-\section*{Additional Hints} % Numbered section
-\begin{info}[Tutorials are you friend:]
-Follow online guides and tutorials on youtube to get the main idea of how to start building your web service and do other stuff.
-\end{info}
-\begin{info}[Test the API calls first:]
-Use curl/wget/postman to make API calls to Geocod.io and Zomato to sure you're formatting your API requests properly. 
-\end{info}
-\begin{info}[When in Doubt, Google:]
-If you're having trouble figuring out something, Google it. Some other developer somewhere probably had the same issue as issue as you. There are plenty of guides you can look up to do all sorts of things! Look around and see what works for you!
-\end{info}
-
-
-%----------------------------------------------------------------------------------------
-%	Additional Questions
-%----------------------------------------------------------------------------------------
-
-\section*{Additional Questions} % Numbered section
-Don't be afraid to ask question, If you have any questions about the project or are having any issues, email me at \textbf{David.Domingo@rutgers.edu} or post your question to the Slack Channel!
+%\begin{info}[Testing your web service:]
+%There are multiple tools you can use to make HTTP requests. Use these tools to test your web service
+%\end{info}
 
 %% File contents
 %\begin{file}[hello.py]
