@@ -5,6 +5,10 @@ In this project, students will explore the distributed computing approach of Map
 
 Read the full project description in ProjectDescription.pdf
 
+Guides on how to run MapReduce on AWS and at Rutgers' Hadoop cluster can be read in MapReduceOnAWS.pdf and MapReduceAtRutgers.pdf respectively
+
+The Reddit Data sets to be used in this project can be found in the "Reddit Data" folder.
+
 Reddit data was taken and modified from Stanford's SNAP data sets:
 https://snap.stanford.edu/data/web-Reddit.html
 
@@ -16,4 +20,4 @@ This project can be utilized to  explore the following topics:
 - Languages: Java
 - Frameworks: MapReduce, Hadoop
 
-
+To make it easier for students, its recommended to compress the "Reddit Data" folder for easier project distribution.
