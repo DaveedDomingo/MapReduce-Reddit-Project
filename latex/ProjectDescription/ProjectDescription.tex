@@ -133,15 +133,14 @@ Now the reddit data we will be using is more involved. It is based on real the R
 
 \-\ \\ \textbf{The following data files are supplied:}
 \begin{itemize}
-    \item \textit{reddit-data-small.txt} - A small set of reposts associated with 3 images.
-    \item \textit{reddit-data-large.txt} - This contains the whole image reposts
-    \item \textit{reddit-cols.txt} - List of values describing the parts of each entry
+    \item \textit{reddit-data-small.txt} - A small set of reposts associated with 6 images, sorted by image id
+    \item \textit{reddit-data-large.txt} - This contains the whole image reposts, sorted by unix time of submission
+    \item \textit{reddit-cols.txt} - List of values describing the columns of each post entry
 \end{itemize}
 
 \-\\\ \textbf{The Reddit Data is formatted as follows:}
 \begin{itemize}
     \item Each line within the text file represents a Reddit post. 
-    \item Posts are sorted by the time they were posted
     \item Each line is formatted as follows: 
              \begin{lstlisting}[language=bash]
  unix_time    image_id    upvotes    downvotes    comments    title
@@ -152,6 +151,10 @@ Now the reddit data we will be using is more involved. It is based on real the R
  1542634712    12    113    10    17    Hi,_this_is_my_cat.
              \end{lstlisting}
 \end{itemize}
+
+\begin{info}[Tab Delimited Files:]
+Bear in mind when working with the Reddit data files, that they are tab-delimited text files, meaning the values in each line are separated by tabs. 
+\end{info}
 
 \begin{info}[Map Reduce Splits:]
 When working with items such as text files (.txt), the Map Reduce frameworks automatically splits the input to each mapper as a line. 
