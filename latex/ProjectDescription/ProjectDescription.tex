@@ -34,7 +34,7 @@
 %	ASSIGNMENT INFORMATION
 %----------------------------------------------------------------------------------------
 
-\title{Analyzing Reddit with MapReduce\\ } % Title of the assignment
+\title{Analyzing Reddit Data with MapReduce\\ } % Title of the assignment
 
 %\author{David Domingo\\ \texttt{djd240@cs.rutgers.edu}} % Author name and email address
 
@@ -60,8 +60,7 @@
 %----------------------------------------------------------------------------------------
 
 \section*{Introduction} % Unnumbered section
-
-In this project we will be exploring MapReduce 
+In this project we will be exploring the MapReduce programming model to process data in a distributed manner.  With data sets getting larger and larger, it may not be enough to process data with a single system. With the MapReduce programming model we'll be able to speed up processing time by parallelizing work among multiple systems. We'll be using MapReduce to do some simple data processing of a social media website.
 
 %----------------------------------------------------------------------------------------
 %	Background
@@ -69,41 +68,107 @@ In this project we will be exploring MapReduce
 
 \section*{Background}
 
-\subsection*{Reddit}
-Reddit is a popular social news website where users add posts are organized into user created boards called "Subreddits". User can subscribe to subreddits to see new posts posted within the subreddit on their homepage. The homepage of Reddit would present popular posts among the subreddits you are subscribed to. Each post can be "upvoted" or "downvoted". A post can be commented on and each comment can also be "upvoted" or "downvoted".  
-
-
-\-\\\ \noindent Learn more about reddit here: \textit{https://en.wikipedia.org/wiki/Reddit}
-
 \subsection*{Intro to MapReduce}
-MapReduce is a programming model. MapReduce can be used to do things such as build inverted indexes. A popular , it to process large amounts of data for data analysis. 
-
+MapReduce is a programming model that applies a split-apply-combine strategy. MapReduce consists of two procedures: a map procedure and a reduce procedure. The map procedure performs filtering, sorting, on data, then the reduce procedure summarizes the output created by the map procedure. During the execution of a MapReduce program, data is split among multiple nodes that apply the map procedure to the initial data input, creating intermediate results. Intermediate results are then shuffled, sorted, and distributed to nodes which apply the reducing procedure to the intermediate results. MapReduce can be used to do distributed string matching, reverse index, count URL access frequency, Log analysis, and overall data analysis. 
 
 \-\\\ \noindent Learn more about MapReduce here: \textit{https://en.wikipedia.org/wiki/MapReduce}
 
+
+%\subsection*{MapReduce for Data Science}
+%A popular use for MapReduce is to process large data sets for statistical analysis. Popular social media websites such as Reddit, Facebook, Instagram, and Twitter have rich information that can be extracted from user interactions on the web service. Such information can provide information that can help answer questions such as, how do people interact with out service,  what are peoples interested in, etc. 
+%
+
+\subsection*{Intro to Reddit}
+Reddit is a popular social news website where content is organized into user created boards called "subreddits". Users can add posts to subreddits.  Users can subscribe to subreddits to see new posts posted within the subreddit on their homepage. In its basic form, the homepage of Reddit would present a curated feed of popular posts among the subreddits the user is subscribed to. Each post can be "upvoted" or "downvoted". A post can be commented on and each comment can also be "upvoted" or "downvoted". An upvote and downvote can be compared to "like" and "dislike" on Facebook. A user can"upvote" a post if they believe it is contributes to the current "conversation". Likewise, users can "downvote" a post if they believe it does not contribute to the current "conversation". Through the use of upvoting and downvoting mechanisms, users help Reddit algorithms rank and determine quality content that users would be interested in.
+
+\-\\\ \noindent Learn more about reddit here: \textit{https://en.wikipedia.org/wiki/Reddit}
+
+\subsection*{Reddit as a Basis for Social Media Research}
+Within social media, certain content can be posted multiple times. In the case of Reddit, similar content can be posted multiple times in more than one subreddit. In the context of Reddit, when some content is resubmitted in another post, it is called a "repost". Analysis of reposts help provide a means in understanding social media content placement. Even though two users can submit two different posts using the same content, each post could perform differently. It becomes apparent that there is a multitude of factors that contribute to the performance of a post besides the content such as: the number of user subscribed to the subreddit, how attractive the post title is, the time of day the post was uploaded, and so on. With the large user base of Reddit along with Reddit's board system of subreddits providing simple modeling of social communities, it has been seen to be a good platform to research social media interactions, patterns, and phenomena.
+
+Within the paper "\textit{What's in a name? Understanding the Interplay between Titles, Content, and Communities in Social Media}", researchers Lakkarajue et al. did just this. They collected Reddit data to analyze how certain factors contribute to the popularity of reposts. For their data set, they collected information on reposts of images as it was significantly easy to identify reposted images using reverse image search. Using the data set, they were able to derive models on how time, social context, and presentation affected a post's performance, ultimately helping them understand when, where, and how a post should be presented to maximize its reach.
+
+\-\ \\You can read more about their research here: \url{http://i.stanford.edu/~julian/pdfs/icwsm13.pdf}
+
 %----------------------------------------------------------------------------------------
-%	The Reddit MapReduce Program
+%	The Task
 %----------------------------------------------------------------------------------------
 
-\section*{The Reddit MapReduce Program} % Numbered section
-The task in this project is to create a MapReduce program to analyze Reddit Data. The reddit Data is pulled from reddit collected from, downloaded from here: Provided along with this project should be a modified version without the header line. 
 
-The Reddit Data is formatted as follows:
+\section*{Calculating Image Impact using MapReduce}
+The goal of this project would be to create a MapReduce program to process the Reddit data Lakkarajue et al. collected in a way that will help us do some data analysis of our own.
+\subsection*{Image Impact on Reddit}
+In this project, we will compare images based on the amount of impact they had on Reddit. We can do this by measuring the amount of engagement each photo induced. This can be done by through simply counting user interactions. 
+
+\-\ \\As you've learned, users on Reddit can interact with posts by upvoting, downvoting, or commenting. We can simply define a post's impact to be the number of times it was upvoted, downvoted, or commented on:
+$$Impact = upvotes + downvotes + comments $$
+This would calculate the impact of a particular post, not a particular image. To calculate the impact of an image, we can simply extend our definition of the impact of a post to define the impact of a particular image to be the sum of all impact values for all the posts associated to a particular image.
+$$Impact_{id} = \sum upvotes_p + downvotes_p + comments_p, \forall p \in P_{id} $$
+In this equation, $p$ is a post within $P$, the set all of posts associated with some image with an id $id$.
 
 
+\subsection*{Using MapReduce}
+Since each entry in our data set represents a post with information on the number of upvotes, downvotes, comments, and the image that was posted, this would be a great opportunity to use MapReduce. In this case we can use MapReduce to calculate and map impact values calculated per post to the image id each post is associated with, and then calculate overall impact by summing up (ie. reducing) all the impact values calculated for each image id.
+
+\-\ \\\textbf{Example:}\\ 
+As a basic example lets say we have three entries representing three posts: 
+\begin{lstlisting}[language=bash]
+image_id    upvotes    downvotes    comments
+123         200        50           6
+152         350        100          12
+123         450        5            12
+\end{lstlisting}
+We can see the first and third entry are posts associated to an image with the id 123 and the second entry is a post associated with a image 152.
 
 
-This is just a simple way to analyze Reddit data. The but data sets can be analyzed in a multitude of ways. 
+\-\ \\In the end, the result of our program should look like such:
+\begin{lstlisting}[language=bash]
+123        732
+152        462
+\end{lstlisting}
+From this we can see more people interacted with posts associated with the  image of id 123 compared to the posts associated with image of id 152. We could naively say the image of id 123 had more impact than the image of id 152. If image of id 123 was perhaps an image of a cat and image of id 152 was an image of a shoe, we can predict that if we posted a similar image of a cat to that in image of id 123, it could potentially be more engaging and get more exposure than if we posted a picture of a shoe similar to the image of 152.
 
+\subsection*{The Reddit Data}
+Now the reddit data we will be using is more involved. It is based on real the Reddit data collected by Lakkarajue et al. for their study.
 
+\-\ \\ \textbf{The following data files are supplied:}
+\begin{itemize}
+    \item \textit{reddit-data-small.txt} - A small set of reposts associated with 3 images.
+    \item \textit{reddit-data-large.txt} - This contains the whole image reposts
+    \item \textit{reddit-cols.txt} - List of values describing the parts of each entry
+\end{itemize}
+
+\-\\\ \textbf{The Reddit Data is formatted as follows:}
+\begin{itemize}
+    \item Each line within the text file represents a Reddit post. 
+    \item Posts are sorted by the time they were posted
+    \item Each line is formatted as follows: 
+             \begin{lstlisting}[language=bash]
+ unix_time    image_id    upvotes    downvotes    comments    title
+             \end{lstlisting}
+             where $unix\_time$ is the time the post was submitted, $image\_id$ is the id of the image associated with the post, $upvotes$ is the number of upvotes the post has, $downvotes$ is the number of downvotes the post has, $comments$ is the number of comments the post has, and $title$ is the title of the post. 
+    \item An example of a line representing a post of an image of id 12, with 113 upvotes, 10 downvotes, 17 comments, and the title, "Hi, this is my cat.", would be: 
+                 \begin{lstlisting}[language=bash]
+ 1542634712    12    113    10    17    Hi,_this_is_my_cat.
+             \end{lstlisting}
+\end{itemize}
+
+\begin{info}[Map Reduce Splits:]
+When working with items such as text files (.txt), the Map Reduce frameworks automatically splits the input to each mapper as a line. 
+\end{info}
+
+%----------------------------------------------------------------------------------------
+%	Getting Started 
+%----------------------------------------------------------------------------------------
 
 \section*{Getting Started}
-To get started, it is important to understand MapReduce semantics. There are plenty of tutorials out there. Look at the sample word count program and get it running on a Hadoop Cluster. Learn how to run
+To get started, it is important to understand MapReduce semantics and how to run MapReduce. There are plenty of tutorials out there. Look at the example word count program used in the Apache MapReduce tutorial. A link to the tutorial will be included in the end of this document. The word count example goes over MapReduce by making a program that counts the number of occurrences for each word in an input file. Learn how it works, how to compile it, and how to get it running on a Hadoop Cluster. After you get the word count example to work, make a similar program that will use the Reddit data. Start off with the smaller data set so you can see whether or not the values are adding up correctly. When you think your program successfully works with the smaller data set, then you can try running it on the whole data set. 
 
-After you get wordcount to work, make a similar program but instead of text files use the text files with Reddit data. This will include changing each mapper processes its part.
+\-\ \\As for Hadoop Clusters, you have multiple options. You can use Amazon Web Service's EMR service which allows user to run their own Hadoop Cluster in the cloud. Rutgers also has a Hadoop Cluster to use.
 
-
-
+\begin{info}[Use Amazon Web Services Elastic MapReduce Service:]
+It's highly recommended to use AWS EMR to run your MapReduce project. By using AWS EMR you will be able get experience with working with Amazon's popular cloud services being used in industry today along side with experience working with a Hadoop Cluster. The Rutgers Hadoop Cluster can also be used, but it could be unstable due to it being recently started and untested under high loads.
+\end{info}
 
 %----------------------------------------------------------------------------------------
 %	Submission 
@@ -132,6 +197,7 @@ To submit your project, have ONE of the group members submit two things:
 \textbf{MapReduce Guides}
 \begin{itemize}
     \item \textit{Apache MapReduce Tutorial}\\ https://hadoop.apache.org/docs/stable/hadoop-mapreduce-client/hadoop-mapreduce-client-core/\\MapReduceTutorial.html
+    \item \textit{HDFS Overview and Commands}\\ https://hadoop.apache.org/docs/r2.4.1/hadoop-project-dist/hadoop-common/FileSystemShell.html
     \item \textit{Running MapReduce on AWS}\\ https://github.com/DaveedDomingo/MapReduce-Reddit-Project
     \item \textit{Running MapReduce at Rutgers}\\ https://github.com/DaveedDomingo/MapReduce-Reddit-Project
 \end{itemize}
@@ -147,7 +213,7 @@ To submit your project, have ONE of the group members submit two things:
 \begin{info}[Tutorials are you friend:]
 Follow online guides and tutorials on youtube to get the main idea of how to start building your web service and do other stuff.
 \end{info}
-\begin{info}[Understand Map Reduce through Copying:]
+\begin{info}[Understand Map Reduce through examples:]
 Look at completed MapReduce projects to get a sense of how MapReduce works and the semantics of a MapReduce program.
 \end{info}
 
@@ -157,13 +223,8 @@ Look at completed MapReduce projects to get a sense of how MapReduce works and t
 %----------------------------------------------------------------------------------------
 
 \section*{Additional Questions} % Numbered section
-Don't be afraid to ask question, If you have any questions about the project or are having any issues, email me at \textbf{David.Domingo@rutgers.edu} or post your question to the Slack Channel!
+Don't be afraid to ask question! If you have any questions about the project or are having any issues, email me at \textbf{David.Domingo@rutgers.edu} or post your question to the class slack channel!
 
-%----------------------------------------------------------------------------------------
-%	Additional Questions
-%----------------------------------------------------------------------------------------
-\section*{TL;DR}
-Make a MapReduce Project to count the total amount of upvotes a picture had and submit it. 
 
 %% File contents
 %\begin{file}[hello.py]

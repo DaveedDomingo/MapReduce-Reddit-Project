@@ -78,10 +78,7 @@ At Rutgers, we have a Hadoop cluster that students to run Spark and MapReduce pr
 %----------------------------------------------------------------------------------------
 
 \section{Connecting to the Cluster}
-There are three nodes at which we can connect to the Rutgers Hadoop Cluster: \textit{data1.cs.rutgers.edu}, \textit{data2.cs.rutgers.edu}, and \textit{data3.cs.rutgers.edu}. 
-
-\subsection{Via Secure Shell (SSH)}
-You can connect to them via Secure Shell (SSH)
+There are three nodes at which we can connect to the Rutgers Hadoop Cluster: \textit{data1.cs.rutgers.edu}, \textit{data2.cs.rutgers.edu}, and \textit{data3.cs.rutgers.edu}. You can connect to them via Secure Shell (SSH)
 \begin{lstlisting}[language=bash]
   $ ssh <netid>@<remote>
 \end{lstlisting}
@@ -90,11 +87,8 @@ example:
   $ ssh abc123@data1.cs.rutgers.edu
 \end{lstlisting}
 
-\subsection{Via XWindow (Graphical)}
-We can also connect to the cluster using Xwindow. This will start an Xwindows session. This way you can use a GUI to navigate the machine.
-
-\begin{info}[You need to know linux command:]
-To interact with the cluster you will have to familiarize yourself with linux commands and network protocols such as ssh, scp, sftp. If you are unfamiliar with typical linux, check out https://www.cs.rutgers.edu/resources/beginners-info and look at the resources under the "Introduction to CS Resources" and "Intro to Linux" sections to read up on how to interact with the linux iLab machines.
+\begin{info}[You need to know linux commands:]
+To interact with the cluster you will have to familiarize yourself with linux commands and network protocols such as ssh and scp If you are unfamiliar with typical linux, check out https://www.cs.rutgers.edu/resources/beginners-info and look at the resources under the "Introduction to CS Resources" and "Intro to Linux" sections to read up on how to interact with the linux iLab machines.
 \end{info}
 
 
@@ -102,10 +96,9 @@ To interact with the cluster you will have to familiarize yourself with linux co
 %	Transferring Files to the Cluster
 %----------------------------------------------------------------------------------------
 
-\section{Transferring Files to the Cluster}
-In order to run MapReduce on the cluster, we need to have our runnable jars and input files on the ilab machines. You can transfer data to the iLab machines using either SFTP or SCP. 
-\subsection{Via Secure Copy Protocol (SCP)}
-The 
+\section{Moving Files to the Cluster}
+In order to run MapReduce on the cluster, we need to have our runnable jars and input files on the iLab machines. You can transfer data to the iLab machines using the Secure Copy Protocol. 
+Typical scp command usage is as follows:
 \begin{lstlisting}[language=bash]
   $ scp <source> <destination>
 \end{lstlisting}
@@ -113,89 +106,82 @@ Example:
 \begin{lstlisting}[language=bash]
   $ scp file.txt djd240@data1.cs.rutgers.edu:~
 \end{lstlisting}
-We can also transfer files from the iLab machines back to our local comuputer, switching the source and destination like such,
+\textbf{Note:} Notice the usage of the colon within the destination. The path after the colon specifies the file path the file should be placed on the destination system. In our example we simply used the tilde character, $\sim$, which represents the home directory.
+
+\-\ \\We can also transfer files from the iLab machines back to our local computer, switching the source and destination like such,
 \begin{lstlisting}[language=bash]
   $ scp djd240@data1.cs.rutgers.edu:~/file.txt file.txt
 \end{lstlisting}
-
-\subsection{Via Secure File Transfer Protocol (SFTP)}
-STFP is an modified version of SSH that allows for file transfers. We first use sftp to connect to the remote computer then use sftp commands to transfer files.
-\begin{lstlisting}[language=bash]
-  $ sftp <destination>
-  sftp> get file
-\end{lstlisting}
-We can also transfer files back to our local computers using get
 
 %----------------------------------------------------------------------------------------
 %	Preparing Input
 %----------------------------------------------------------------------------------------
 
-\section{Preparing Input}
+\section{HDFS and Preparing Input}
 
-\subsection{Intro to HDFS}
-Now for Hadoop to find your input, the input must be on HDFS. At this point, assuming you followed the previous section, your data is on the cluster but not on HDFS. To get it on HDFS, while SSH'd in the cluster, run HDFS to move files to and from HDFS.
-We can interact with HDFS by using the following commands:
+Now for Hadoop to use your input, the input files must be on HDFS. By using scp you were able to get your files onto the machine, but not onto HDFS. Now you need to get it from the machine to HDFS. To get files on HDFS, use HDFS commands to move files to and from HDFS while SSH'd in the cluster.
 
-\subsection{HDFS Basics}
-\-\\\\\noindent To list directories and files on HDFS, we can use the -ls command
+\-\ \\You can move a file to hdfs by using the -put command:
+\begin{lstlisting}[language=bash]
+  $ hdfs dfs -put <source> <dest>
+\end{lstlisting}    
+You can list your files on hdfs by using the -ls command:
 \begin{lstlisting}[language=bash]
   $ hdfs dfs -ls 
-\end{lstlisting}
-To put files onto hdfs we can use the -put command
+\end{lstlisting} 
+Example:
 \begin{lstlisting}[language=bash]
-  $ hdfs dfs -put <file>
-  $ hdfs dfs -put myfile.txt //example
-\end{lstlisting}
-To get files from HDFS and copy it into 
-\begin{lstlisting}[language=bash]
-  $ hdfs dfs -put <file>
-  $ hdfs dfs -put myfile.txt //example
-\end{lstlisting}
+  $ ls
+  input.txt
+  $ hdfs dfs -put input.txt 
+  $ hdfs dfs -ls 
+  Found 1 item 
+  -rw-r--r--   1 hadoop hadoop          0 2018-11-20 00:17 input.txt
+\end{lstlisting} 
+
+\-\ \\ You can read more on HDFS commands here:\\ https://hadoop.apache.org/docs/r2.4.1/hadoop-project-dist/hadoop-common/FileSystemShell.html
+ 
 
 
 %----------------------------------------------------------------------------------------
 %	Executing the Job
 %----------------------------------------------------------------------------------------
 \section{Executing MapReduce}
-\subsection{Intro to Hadoop}
-When we want to interact with Hadoop, we run Hadoop commands.
-\subsection{Running an executable JAR}
-While SSH'd into the cluster, invoke hadoop to run MapReduce by running the following
+When we want to interact with Hadoop, we run Hadoop commands. To run the MapReduce program, while SSH'd into the cluster, invoke Hadoop to run MapReduce by using the Hadoop jar command:
 \begin{lstlisting}[language=bash]
-  $ hadoop jar <jar location> <class> <input> <output>
+  $ hadoop jar <jar location> <Main Class> <input> <output>
 \end{lstlisting}
-In this case \emph{input} is the location of the file or directory that hold the input. \emph{output} is the name of the folder you want Hadoop to store the results in at the end.
-
-\-\\\noindent Example:
+Example with the runnable jar on the cluster, the input data named input.txt in HDFS, and specifying Hadoop to create a folder named "output" to put the output files in:
 \begin{lstlisting}[language=bash]
   $ hadoop jar WordCount-0.0.1-SNAPSHOT.jar WordCount input.txt output
 \end{lstlisting}
+
 \begin{info}[output folder must be unique:]
 When specifying the output folder, make the output folder should be unique. If a folder with the same name that already exists, the program will terminate and throw an error. 
 \end{info}
 
+
+
 \section{Examining MapReduce Output}
 After the MapReduce job executes, Hadoop should have created a folder on HDFS with name you specified when executing. 
 
-\subsection{Inspecting files using cat}
-The cat unix command prints out the file contents. HDFS also supports cat.
+You can checkout the output by using the hdfs ls and cat commands.
+For example if you specified Hadoop to store the results in a folder called "output" on HDFS, you can list the files within the output folder using the ls command
 \begin{lstlisting}[language=bash]
-  $ hdfs dfs -cat <file>
+  $ hdfs dfs -ls output
+  -rw-r--r--   1 hadoop hadoop          0 2018-11-20 00:06 output4/_SUCCESS
+  -rw-r--r--   1 hadoop hadoop      49831 2018-11-20 00:06 output/part-r-00000
+  -rw-r--r--   1 hadoop hadoop      49924 2018-11-20 00:06 output/part-r-00001
 \end{lstlisting}
-
-\-\\\noindent Example:
+You can then print out the contents of one of the result files by using the cat command
 \begin{lstlisting}[language=bash]
-  $ hdfs dfs -cat output/r-00000.
+  $ hdfs dfs -cat output/part-r-00000
 \end{lstlisting}
-
-\subsection{Copying back from HDFS to iLab machine}
-You can copy back the output back to your ilab machine using the copyToLocal command. 
-
-\subsection{Copying to compute from iLab machine}
-If you using SSH to work remotely on the iLab machines but would like to copy files back to your local machine, you can use scp and sftp to copy files back to your local machine.
-\textbf{Via Secure Copy Protocol}
-\textbf{VIa Secure File Transfer Protocol}
-
+If you want to copy the results from HDFS back to your cluster, you can use the hdfs get command:
+ \begin{lstlisting}[language=bash]
+  $ hdfs dfs -get output/part-r-00000
+\end{lstlisting} 
+If you want to transfer the results back to your local computer (not the cluster machine), you can use a combination of the scp command like when you transferred files to the cluster, but instead switching the source and destination locations.
 
 %----------------------------------------------------------------------------------------
 %	USEFUL LINKS AND RESOURCES
