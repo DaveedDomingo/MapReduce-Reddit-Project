@@ -131,7 +131,21 @@ In order to start a new cluster, do the following:
     \item Under the Software Configuration Section, make sure Core Hadoop is selected under Applications
     \item Under the Hardware Configuration Section, make sure "m3.xlarge" in the dropdown. This is the default size. This should be enough for typical usage.
     \item Under Security and access, if you made a security key-pair, select the key-pair you made in the EC2 key pair dropdown.
-    \item Click "Create cluster"
+    \item Click "Create cluster".
+    \item Now to connect to remotely your cluster follow the next section to add security rules for you cluster. 
+\end{enumerate}
+
+\subsection{Setting Security Rules}
+\noindent By default, you won't be able to connect to your cluster. In order to connect to the cluster you have to manually add security rules in order for you to connect via SSH, TCP, and ICMP protocols over the internet. To do this, do the following:
+\begin{enumerate}
+     \item On the Amazon EMR dashboard, navigate to your cluster by clicking its name.
+     \item Within the summary tab for your cluster, under the "Security and Access" section, click the link following "Security groups for Master"
+     \item Select the entry for ElasticMapReduce-master.
+     \item Navigate to the "Inbound" tab below and click "Edit"
+     \item Add a rule for TCP by clicking "Add Rule", selecting "All TCP" in the type dropdown, and selecting "Anywhere" in the source dropdown.
+     \item Add a rule for ICMP by clicking "Add Rule", selecting "All ICMP - IPv4" in the type dropdown, and selecting "Anywhere" in the source dropdown.
+     \item Finally, add a final rule for SSH by clicking "Add Rule", selecting "SSH" in the type dropdown, and selecting "Anywhere" in the source dropdown.
+     \item Save the rules you just created by clicking "Save".
 \end{enumerate}
 \begin{info}[Startup Time:]
 When starting a cluster, it typically takes some time for the hardware resources to be allocated and functionalities set up for your cluster. It could possibly take to up to 15-20 minutes for your cluster to start.
@@ -173,7 +187,7 @@ When you are done using AWS EMR, make sure to terminate any running clusters and
 \section{Running MapReduce}
 In order to run MapReduce you will have do three things. Place your jar somewhere the cluster can access it. Place the input data somewhere the cluster could access. Run MapReduce. 
 \subsection{Connecting to the Cluster}
-You run commands on the EMR cluster, you can connect the the EMR cluster with SSH. To connect to your cluster you will use connect as hadoop at master public DNS. You can find the master public DNS of your cluster under the summary section for your cluster.
+You run commands on the EMR cluster, you can connect the the EMR cluster with SSH. To connect to your cluster you will use connect as Hadoop at master public DNS. You can find the master public DNS of your cluster under the summary section for your cluster.
 \begin{lstlisting}[language=bash]
   $ ssh -i <key location> <remote>
 \end{lstlisting}
@@ -182,7 +196,9 @@ example:
   $ ssh -i mykey.pem hadoop@ec2-54-245-34-159.us-west-2.compute.amazonaws.com
 \end{lstlisting}
 
-
+\begin{info}[Make sure you added security rules:]
+If you can not connect to your cluster, ensure that you have added the proper security rules to allow you to connect. You can find out how to do this in section 2.3. 
+\end{info}
 
 \subsection{Ways to run MapReduce }
 In order to run MapReduce, you have to have files accessible to the cluster. You have two options when it comes to running MapReduce: 
