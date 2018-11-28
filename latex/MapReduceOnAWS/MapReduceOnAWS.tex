@@ -134,7 +134,9 @@ In order to start a new cluster, do the following:
     \item Click "Create cluster".
     \item Now to connect to remotely your cluster follow the next section to add security rules for you cluster. 
 \end{enumerate}
-
+\begin{info}[Startup Time:]
+When starting a cluster, it typically takes some time for the hardware resources to be allocated and functionalities set up for your cluster. It could possibly take to up to 15-20 minutes for your cluster to start.
+\end{info}
 \subsection{Setting Security Rules}
 \noindent By default, you won't be able to connect to your cluster. In order to connect to the cluster you have to manually add security rules in order for you to connect via SSH, TCP, and ICMP protocols over the internet. To do this, do the following:
 \begin{enumerate}
@@ -147,9 +149,6 @@ In order to start a new cluster, do the following:
      \item Finally, add a final rule for SSH by clicking "Add Rule", selecting "SSH" in the type dropdown, and selecting "Anywhere" in the source dropdown.
      \item Save the rules you just created by clicking "Save".
 \end{enumerate}
-\begin{info}[Startup Time:]
-When starting a cluster, it typically takes some time for the hardware resources to be allocated and functionalities set up for your cluster. It could possibly take to up to 15-20 minutes for your cluster to start.
-\end{info}
 \subsection{Terminating a Cluster}
 To terminate/shut down a cluster you started, do the following:
 \begin{enumerate}
