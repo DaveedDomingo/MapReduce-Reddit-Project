@@ -62,7 +62,7 @@
 
 \section*{Introduction} % Unnumbered section
 
-At Rutgers, we have a Hadoop cluster that students to run Spark and MapReduce programs. In this guide, we'll be going over how to use Rutgers' Hadoop Cluster to run MapReduce Programs. In order to run MapReduce you will have do three things. Place your jar somewhere the cluster can access it. Place the input data somewhere the cluster could access. Run MapReduce. 
+At Rutgers, we have a Hadoop cluster that students can use to run Spark and MapReduce programs. In this guide, we'll be going over how to use Rutgers' Hadoop Cluster to run MapReduce Programs. In order to run MapReduce you will have do three things: 1.) Place your runnable jar and input files onto the cluster, 2.) Move your input files into HDFS, and 3.) Invoke MapReduce. 
 
 
 %----------------------------------------------------------------------------------------
@@ -104,13 +104,13 @@ Typical scp command usage is as follows:
 \end{lstlisting}
 Example:
 \begin{lstlisting}[language=bash]
-  $ scp file.txt djd240@data1.cs.rutgers.edu:~
+  $ scp file.txt abc123@data1.cs.rutgers.edu:~
 \end{lstlisting}
 \textbf{Note:} Notice the usage of the colon within the destination. The path after the colon specifies the file path the file should be placed on the destination system. In our example we simply used the tilde character, $\sim$, which represents the home directory.
 
 \-\ \\We can also transfer files from the iLab machines back to our local computer, switching the source and destination like such,
 \begin{lstlisting}[language=bash]
-  $ scp djd240@data1.cs.rutgers.edu:~/file.txt file.txt
+  $ scp abc123@data1.cs.rutgers.edu:~/file.txt file.txt
 \end{lstlisting}
 
 %----------------------------------------------------------------------------------------
@@ -125,11 +125,11 @@ Now for Hadoop to use your input, the input files must be on HDFS. By using scp 
 \begin{lstlisting}[language=bash]
   $ hdfs dfs -put <source> <dest>
 \end{lstlisting}    
-You can list your files on hdfs by using the -ls command:
+\-\ \\You can list your files on hdfs by using the -ls command:
 \begin{lstlisting}[language=bash]
   $ hdfs dfs -ls 
 \end{lstlisting} 
-Example:
+\-\ \\Example placing a file "input.txt" onto HDFS:
 \begin{lstlisting}[language=bash]
   $ ls
   input.txt
@@ -151,7 +151,7 @@ When we want to interact with Hadoop, we run Hadoop commands. To run the MapRedu
 \begin{lstlisting}[language=bash]
   $ hadoop jar <jar location> <Main Class> <input> <output>
 \end{lstlisting}
-Example with the runnable jar on the cluster, the input data named input.txt in HDFS, and specifying Hadoop to create a folder named "output" to put the output files in:
+\-\ \\Example with the runnable jar on the cluster, the input data named input.txt in HDFS, and specifying Hadoop to create a folder named "output" to put the output files in:
 \begin{lstlisting}[language=bash]
   $ hadoop jar WordCount-0.0.1-SNAPSHOT.jar WordCount input.txt output
 \end{lstlisting}
@@ -163,9 +163,9 @@ When specifying the output folder, make the output folder should be unique. If a
 
 
 \section{Examining MapReduce Output}
-After the MapReduce job executes, Hadoop should have created a folder on HDFS with name you specified when executing. 
+After the MapReduce job executes, Hadoop should have created a folder on HDFS with name you specified when executing. \\
 
-You can checkout the output by using the hdfs ls and cat commands.
+\noindent You can checkout the output by using the hdfs ls and cat commands.
 For example if you specified Hadoop to store the results in a folder called "output" on HDFS, you can list the files within the output folder using the ls command
 \begin{lstlisting}[language=bash]
   $ hdfs dfs -ls output
@@ -173,15 +173,16 @@ For example if you specified Hadoop to store the results in a folder called "out
   -rw-r--r--   1 hadoop hadoop      49831 2018-11-20 00:06 output/part-r-00000
   -rw-r--r--   1 hadoop hadoop      49924 2018-11-20 00:06 output/part-r-00001
 \end{lstlisting}
-You can then print out the contents of one of the result files by using the cat command
+\-\ \\You can then print out the contents of one of the result files by using the cat command
 \begin{lstlisting}[language=bash]
   $ hdfs dfs -cat output/part-r-00000
 \end{lstlisting}
-If you want to copy the results from HDFS back to your cluster, you can use the hdfs get command:
+\-\ \\If you want to copy the results from HDFS back to your main directory within the cluster, you can use the hdfs get command:
  \begin{lstlisting}[language=bash]
   $ hdfs dfs -get output/part-r-00000
 \end{lstlisting} 
-If you want to transfer the results back to your local computer (not the cluster machine), you can use a combination of the scp command like when you transferred files to the cluster, but instead switching the source and destination locations.
+\-\ \\If you want to transfer the results back to your local computer (not the cluster machine), you can use the scp command as described in section 2. 
+
 
 %----------------------------------------------------------------------------------------
 %	USEFUL LINKS AND RESOURCES
